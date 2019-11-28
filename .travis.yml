@@ -1,0 +1,17 @@
+language: go
+go:
+  - "1.12"
+
+env: GO111MODULE=on
+
+before_script:
+  - go get github.com/golang/mock/mockgen
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
+  - GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint
+
+script:
+  - go generate
+  - golangci-lint run
+  - go test -v -covermode=count -coverprofile=coverage.out
+  - $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
