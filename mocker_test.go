@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/ricardogama/api-mocker-go/mocks"
+	"github.com/ricardogama/api-mocker-go/testdata"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -29,7 +29,7 @@ func Test_Mocker_Results(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	handlerMock := mocks.NewMockHandler(mockCtrl)
+	handlerMock := testdata.NewMockHandler(mockCtrl)
 
 	Convey("*Mocker.Results()", t, func() {
 		Convey("Returns an error when it's not possible to create a request", func() {
@@ -122,7 +122,7 @@ func Test_Mocker_Ensure(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	handlerMock := mocks.NewMockHandler(mockCtrl)
+	handlerMock := testdata.NewMockHandler(mockCtrl)
 
 	Convey("*Mocker.Ensure()", t, func() {
 		Convey("Returns an error when there are expected requests", func() {
@@ -216,7 +216,7 @@ func Test_Mocker_Expect(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	handlerMock := mocks.NewMockHandler(mockCtrl)
+	handlerMock := testdata.NewMockHandler(mockCtrl)
 
 	Convey("*Mocker.Expect()", t, func() {
 		Convey("Returns an error when it's not possible to create a request", func() {
@@ -308,7 +308,7 @@ func Test_Mocker_Clear(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	handlerMock := mocks.NewMockHandler(mockCtrl)
+	handlerMock := testdata.NewMockHandler(mockCtrl)
 
 	Convey("*Mocker.Clear()", t, func() {
 		Convey("Returns an error when it's not possible to create a request", func() {

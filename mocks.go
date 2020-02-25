@@ -1,3 +1,3 @@
 package mocker
 
-//go:generate mockgen -destination=mocks/http.go -package=mocks  net/http Handler
+//go:generate mockgen -destination=testdata/http_mock.go -package=testdata net/http Handler
