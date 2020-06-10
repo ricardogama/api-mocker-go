@@ -1,4 +1,4 @@
-module github.com/ricardogama/api-mocker-go
+module github.com/ricardogama/api-mocker-go/v2
 
 go 1.12
 
