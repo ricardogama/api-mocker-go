@@ -250,8 +250,8 @@ func Test_Mocker_Expect(t *testing.T) {
 
 			mock := &Mocker{BasePath: server.URL}
 			err := mock.Expect(&Request{
-				Query: map[string]string{
-					"biz": "baz",
+				Query: map[string][]string{
+					"biz": []string{"baz"},
 				},
 				Method: "foo",
 				Path:   "bar",
@@ -264,7 +264,7 @@ func Test_Mocker_Expect(t *testing.T) {
 			So(req.Method, ShouldEqual, "POST")
 			So(req.URL.Path, ShouldResemble, "/mocks")
 			So(req.Header["Content-Type"], ShouldResemble, []string{"application/json"})
-			So(string(body), ShouldEqual, `{"method":"foo","path":"bar","query":{"biz":"baz"},"response":{"status":200}}`)
+			So(string(body), ShouldEqual, `{"method":"foo","path":"bar","query":{"biz":["baz"]},"response":{"status":200}}`)
 		})
 
 		Convey("It fails when the request does not return 201", func() {
@@ -285,8 +285,8 @@ func Test_Mocker_Expect(t *testing.T) {
 
 			mock := &Mocker{BasePath: server.URL}
 			err := mock.Expect(&Request{
-				Query: map[string]string{
-					"biz": "baz",
+				Query: map[string][]string{
+					"biz": []string{"baz"},
 				},
 				Method: "foo",
 				Path:   "bar",
@@ -299,7 +299,7 @@ func Test_Mocker_Expect(t *testing.T) {
 			So(req.Method, ShouldEqual, "POST")
 			So(req.URL.Path, ShouldResemble, "/mocks")
 			So(req.Header["Content-Type"], ShouldResemble, []string{"application/json"})
-			So(string(body), ShouldEqual, `{"method":"foo","path":"bar","query":{"biz":"baz"},"response":{"status":200}}`)
+			So(string(body), ShouldEqual, `{"method":"foo","path":"bar","query":{"biz":["baz"]},"response":{"status":200}}`)
 		})
 	})
 }

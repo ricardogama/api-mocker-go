@@ -12,20 +12,20 @@ import (
 
 // Request is a request that can be expected by the mock server.
 type Request struct {
-	Headers  map[string]string `json:"headers,omitempty"`
-	Body     interface{}       `json:"body,omitempty"`
-	Method   string            `json:"method"`
-	Path     string            `json:"path"`
-	Times    int               `json:"times,omitempty"`
-	Query    map[string]string `json:"query,omitempty"`
-	Response *Response         `json:"response"`
+	Headers  map[string][]string `json:"headers,omitempty"`
+	Body     interface{}         `json:"body,omitempty"`
+	Method   string              `json:"method"`
+	Path     string              `json:"path"`
+	Times    int                 `json:"times,omitempty"`
+	Query    map[string][]string `json:"query,omitempty"`
+	Response *Response           `json:"response"`
 }
 
 // Response is a response that can be expected as a response to a mock request.
 type Response struct {
-	Headers map[string]string `json:"headers,omitempty"`
-	Body    interface{}       `json:"body,omitempty"`
-	Status  int               `json:"status"`
+	Headers map[string][]string `json:"headers,omitempty"`
+	Body    interface{}         `json:"body,omitempty"`
+	Status  int                 `json:"status"`
 }
 
 // Results represents the results from the mock server.

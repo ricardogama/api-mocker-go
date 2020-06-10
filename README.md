@@ -39,13 +39,13 @@ func main() {
     Body: map[string]interface{}{
       "foo": "bar",
     },
-    Headers: map[string]string{
-      "X-User-ID": "1",
+    Headers: map[string][]string{
+      "X-User-ID": []string{"1"},
     },
     Response: &mocker.Response{
       Status: 200,
-      Headers: map[string]string{
-        "Content-Range": "bytes 200-1000/67589",
+      Headers: map[string][]string{
+        "Content-Range": []string{"bytes 200-1000/67589"},
       },
       Body: map[string]interface{}{
         "qux": "qix",
@@ -68,7 +68,7 @@ func main() {
   // missing 1 expected calls: [
   //     {
   //         "headers": {
-  //             "X-User-ID": "1"
+  //             "X-User-ID": ["1"]
   //         },
   //         "body": {
   //             "foo": "bar"
@@ -77,7 +77,7 @@ func main() {
   //         "path": "/foo",
   //         "response": {
   //             "headers": {
-  //                 "Content-Range": "bytes 200-1000/67589"
+  //                 "Content-Range": ["bytes 200-1000/67589"]
   //             },
   //             "body": {
   //                 "qux": "qix"
@@ -89,9 +89,9 @@ func main() {
   // 1 unexpected calls: [
   //     {
   //         "headers": {
-  //             "accept-encoding": "gzip",
-  //             "host": "localhost:3005",
-  //             "user-agent": "Go-http-client/1.1"
+  //             "accept-encoding": ["gzip"],
+  //             "host": ["localhost:3005"],
+  //             "user-agent": ["Go-http-client/1.1"]
   //         },
   //         "body": {},
   //         "method": "GET",
