@@ -19,6 +19,7 @@ type Request struct {
 	Times    int                 `json:"times,omitempty"`
 	Query    map[string][]string `json:"query,omitempty"`
 	Response *Response           `json:"response"`
+	Anytime  bool                `json:"anytime"`
 }
 
 // Response is a response that can be expected as a response to a mock request.
