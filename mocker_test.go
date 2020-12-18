@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/ricardogama/api-mocker-go/testdata"
@@ -21,6 +22,30 @@ func Test_New(t *testing.T) {
 			So(mocker, ShouldResemble, &Mocker{
 				BasePath: "foo",
 				Client:   http.DefaultClient,
+			})
+		})
+
+		Convey("Sets the given options", func() {
+			mocker := New("foo", func(m *Mocker) {
+				m.Client = &http.Client{Timeout: time.Second}
+			})
+
+			So(mocker, ShouldResemble, &Mocker{
+				BasePath: "foo",
+				Client:   &http.Client{Timeout: time.Second},
+			})
+		})
+	})
+}
+
+func Test_WithHTTPClient(t *testing.T) {
+	Convey("New()", t, func() {
+		Convey("Sets the given client", func() {
+			mocker := New("foo", WithHTTPClient(&http.Client{Timeout: time.Second}))
+
+			So(mocker, ShouldResemble, &Mocker{
+				BasePath: "foo",
+				Client:   &http.Client{Timeout: time.Second},
 			})
 		})
 	})

@@ -103,6 +103,25 @@ func main() {
 }
 ```
 
+## Options
+
+Configuration can be set on the constructor:
+
+```go
+m := mocker.New("http://localhost:3000", func(mm *Mocker) {
+  mm.Client = &http.Client{Timeout: time.Second}
+})
+```
+
+Or use some of the predefined options:
+
+## WithHTTPClient
+
+```go
+cli := &http.Client{Timeout: time.Second}
+m := mocker.New("http://localhost:3000", mocker.WithHTTPClient(cli))
+```
+
 ## License
 
 [MIT](/LICENSE)
