@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // Request is a request that can be expected by the mock server.
@@ -38,12 +39,16 @@ type Results struct {
 // Mocker allows to communicate with a mock server.
 type Mocker struct {
 	BasePath string
+	Client   *http.Client
 }
 
 // New returns a new Mocker.
 func New(basePath string) *Mocker {
 	return &Mocker{
 		basePath,
+		&http.Client{
+			Timeout: time.Second,
+		},
 	}
 }
 
@@ -55,7 +60,7 @@ func (ms *Mocker) Results() (*Results, error) {
 		return nil, err
 	}
 
-	rsp, err := http.DefaultClient.Do(req)
+	rsp, err := ms.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +123,7 @@ func (ms *Mocker) Expect(mock *Request) error {
 	}
 
 	req.Header.Set("content-type", "application/json")
-	rsp, err := http.DefaultClient.Do(req)
+	rsp, err := ms.Client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -142,7 +147,7 @@ func (ms *Mocker) Clear() error {
 		return err
 	}
 
-	rsp, err := http.DefaultClient.Do(req)
+	rsp, err := ms.Client.Do(req)
 	if err != nil {
 		return err
 	}
