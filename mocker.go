@@ -19,7 +19,7 @@ type Request struct {
 	Times    int                 `json:"times,omitempty"`
 	Query    map[string][]string `json:"query,omitempty"`
 	Response *Response           `json:"response"`
-	Anytime  bool                `json:"anytime"`
+	Anytime  bool                `json:"anytime,omitempty"`
 }
 
 // Response is a response that can be expected as a response to a mock request.
@@ -38,13 +38,29 @@ type Results struct {
 // Mocker allows to communicate with a mock server.
 type Mocker struct {
 	BasePath string
+	Client   *http.Client
+}
+
+// Option allows setting config.
+type Option func(m *Mocker)
+
+// WithHTTPClient sets the http client.
+func WithHTTPClient(cli *http.Client) Option {
+	return func(m *Mocker) {
+		m.Client = cli
+	}
 }
 
 // New returns a new Mocker.
-func New(basePath string) *Mocker {
-	return &Mocker{
+func New(basePath string, opts ...Option) *Mocker {
+	m := &Mocker{
 		basePath,
+		&http.Client{},
 	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
 }
 
 // Results returns both the expected and the unexpected results.
@@ -55,7 +71,7 @@ func (ms *Mocker) Results() (*Results, error) {
 		return nil, err
 	}
 
-	rsp, err := http.DefaultClient.Do(req)
+	rsp, err := ms.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +134,7 @@ func (ms *Mocker) Expect(mock *Request) error {
 	}
 
 	req.Header.Set("content-type", "application/json")
-	rsp, err := http.DefaultClient.Do(req)
+	rsp, err := ms.Client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -142,7 +158,7 @@ func (ms *Mocker) Clear() error {
 		return err
 	}
 
-	rsp, err := http.DefaultClient.Do(req)
+	rsp, err := ms.Client.Do(req)
 	if err != nil {
 		return err
 	}

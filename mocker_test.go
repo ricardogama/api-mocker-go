@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/ricardogama/api-mocker-go/testdata"
@@ -20,6 +21,31 @@ func Test_New(t *testing.T) {
 
 			So(mocker, ShouldResemble, &Mocker{
 				BasePath: "foo",
+				Client:   http.DefaultClient,
+			})
+		})
+
+		Convey("Sets the given options", func() {
+			mocker := New("foo", func(m *Mocker) {
+				m.Client = &http.Client{Timeout: time.Second}
+			})
+
+			So(mocker, ShouldResemble, &Mocker{
+				BasePath: "foo",
+				Client:   &http.Client{Timeout: time.Second},
+			})
+		})
+	})
+}
+
+func Test_WithHTTPClient(t *testing.T) {
+	Convey("New()", t, func() {
+		Convey("Sets the given client", func() {
+			mocker := New("foo", WithHTTPClient(&http.Client{Timeout: time.Second}))
+
+			So(mocker, ShouldResemble, &Mocker{
+				BasePath: "foo",
+				Client:   &http.Client{Timeout: time.Second},
 			})
 		})
 	})
@@ -33,18 +59,18 @@ func Test_Mocker_Results(t *testing.T) {
 
 	Convey("*Mocker.Results()", t, func() {
 		Convey("Returns an error when it's not possible to create a request", func() {
-			mock := &Mocker{BasePath: ":"}
+			mock := &Mocker{BasePath: ":", Client: http.DefaultClient}
 			results, err := mock.Results()
 
-			So(err.Error(), ShouldEqual, "parse :/mocks: missing protocol scheme")
+			So(err.Error(), ShouldEqual, `parse ":/mocks": missing protocol scheme`)
 			So(results, ShouldBeNil)
 		})
 
 		Convey("Returns an error when it's not possible to execute the request", func() {
-			mock := &Mocker{BasePath: "foo://bar"}
+			mock := &Mocker{BasePath: "foo://bar", Client: http.DefaultClient}
 			results, err := mock.Results()
 
-			So(err.Error(), ShouldEqual, `Get foo://bar/mocks: unsupported protocol scheme "foo"`)
+			So(err.Error(), ShouldEqual, `Get "foo://bar/mocks": unsupported protocol scheme "foo"`)
 			So(results, ShouldBeNil)
 		})
 
@@ -61,7 +87,7 @@ func Test_Mocker_Results(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			results, err := mock.Results()
 
 			So(err.Error(), ShouldEqual, "failed to get mocks")
@@ -83,7 +109,7 @@ func Test_Mocker_Results(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			results, err := mock.Results()
 
 			So(err.Error(), ShouldEqual, "invalid character 'o' in literal false (expecting 'a')")
@@ -104,7 +130,7 @@ func Test_Mocker_Results(t *testing.T) {
 					fmt.Fprintf(w, `{"expected":[],"unexpected":[]}`)
 				})
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			results, err := mock.Results()
 
 			So(err, ShouldBeNil)
@@ -145,7 +171,7 @@ func Test_Mocker_Ensure(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			err := mock.Ensure()
 
 			So(strings.Join(strings.Fields(err.Error()), " "), ShouldEqual, `missing 1 expected calls: [ { "method": "", "path": "", "response": null } ]`)
@@ -173,7 +199,7 @@ func Test_Mocker_Ensure(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			err := mock.Ensure()
 
 			So(strings.Join(strings.Fields(err.Error()), " "), ShouldEqual, `1 unexpected calls: [ { "method": "", "path": "", "response": null } ]`)
@@ -202,7 +228,7 @@ func Test_Mocker_Ensure(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			err := mock.Ensure()
 
 			So(err, ShouldBeNil)
@@ -220,17 +246,17 @@ func Test_Mocker_Expect(t *testing.T) {
 
 	Convey("*Mocker.Expect()", t, func() {
 		Convey("Returns an error when it's not possible to create a request", func() {
-			mock := &Mocker{BasePath: ":"}
+			mock := &Mocker{BasePath: ":", Client: http.DefaultClient}
 			err := mock.Expect(nil)
 
-			So(err.Error(), ShouldEqual, "parse :/mocks: missing protocol scheme")
+			So(err.Error(), ShouldEqual, `parse ":/mocks": missing protocol scheme`)
 		})
 
 		Convey("Returns an error when it's not possible to execute the request", func() {
-			mock := &Mocker{}
+			mock := &Mocker{Client: http.DefaultClient}
 			err := mock.Expect(nil)
 
-			So(err.Error(), ShouldEqual, `Post /mocks: unsupported protocol scheme ""`)
+			So(err.Error(), ShouldEqual, `Post "/mocks": unsupported protocol scheme ""`)
 		})
 
 		Convey("Does not fail when the request returns 201", func() {
@@ -248,7 +274,7 @@ func Test_Mocker_Expect(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			err := mock.Expect(&Request{
 				Query: map[string][]string{
 					"biz": []string{"baz"},
@@ -283,7 +309,7 @@ func Test_Mocker_Expect(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			err := mock.Expect(&Request{
 				Query: map[string][]string{
 					"biz": []string{"baz"},
@@ -312,17 +338,17 @@ func Test_Mocker_Clear(t *testing.T) {
 
 	Convey("*Mocker.Clear()", t, func() {
 		Convey("Returns an error when it's not possible to create a request", func() {
-			mock := &Mocker{BasePath: ":"}
+			mock := &Mocker{BasePath: ":", Client: http.DefaultClient}
 			err := mock.Clear()
 
-			So(err.Error(), ShouldEqual, "parse :/mocks: missing protocol scheme")
+			So(err.Error(), ShouldEqual, `parse ":/mocks": missing protocol scheme`)
 		})
 
 		Convey("Returns an error when it's not possible to execute the request", func() {
-			mock := &Mocker{}
+			mock := &Mocker{Client: http.DefaultClient}
 			err := mock.Clear()
 
-			So(err.Error(), ShouldEqual, `Delete /mocks: unsupported protocol scheme ""`)
+			So(err.Error(), ShouldEqual, `Delete "/mocks": unsupported protocol scheme ""`)
 		})
 
 		Convey("It fails when the request does not return 200", func() {
@@ -338,7 +364,7 @@ func Test_Mocker_Clear(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			err := mock.Clear()
 
 			So(err.Error(), ShouldEqual, "failed to clear mocks")
@@ -359,7 +385,7 @@ func Test_Mocker_Clear(t *testing.T) {
 				}).
 				Times(1)
 
-			mock := &Mocker{BasePath: server.URL}
+			mock := &Mocker{BasePath: server.URL, Client: http.DefaultClient}
 			err := mock.Clear()
 
 			So(err, ShouldBeNil)
