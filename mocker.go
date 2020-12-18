@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 )
 
 // Request is a request that can be expected by the mock server.
@@ -20,7 +19,7 @@ type Request struct {
 	Times    int                 `json:"times,omitempty"`
 	Query    map[string][]string `json:"query,omitempty"`
 	Response *Response           `json:"response"`
-	Anytime  bool                `json:"anytime"`
+	Anytime  bool                `json:"anytime,omitempty"`
 }
 
 // Response is a response that can be expected as a response to a mock request.
@@ -42,14 +41,26 @@ type Mocker struct {
 	Client   *http.Client
 }
 
-// New returns a new Mocker.
-func New(basePath string) *Mocker {
-	return &Mocker{
-		basePath,
-		&http.Client{
-			Timeout: time.Second,
-		},
+// Option allows setting config.
+type Option func(m *Mocker)
+
+// WithHTTPClient sets the http client.
+func WithHTTPClient(cli *http.Client) Option {
+	return func(m *Mocker) {
+		m.Client = cli
 	}
+}
+
+// New returns a new Mocker.
+func New(basePath string, opts ...Option) *Mocker {
+	m := &Mocker{
+		basePath,
+		&http.Client{},
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
 }
 
 // Results returns both the expected and the unexpected results.

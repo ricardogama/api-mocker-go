@@ -1,6 +1,6 @@
 module github.com/ricardogama/api-mocker-go/v2
 
-go 1.12
+go 1.15
 
 require (
 	github.com/golang/mock v1.4.0
